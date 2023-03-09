@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var startLocation: CGPoint?
+    @State private var location: CGPoint?
 
     let radius: CGFloat = 100
     var diameter: CGFloat {
@@ -16,11 +18,37 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            Circle()
-                .frame(width: diameter)
+            if let startLocation {
+                Circle()
+                    .frame(width: diameter)
+                    .position(startLocation)
+
+                /// Handle
+                Circle()
+                    .frame(width: 50)
+                    .position(startLocation)
+                    .foregroundColor(.white)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.blue)
+        .gesture(dragGesture)
+        .ignoresSafeArea()
+    }
+
+    var dragGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { value in
+                if startLocation == nil {
+                    startLocation = value.location
+                }
+
+                location = value.location
+            }
+            .onEnded { value in
+                startLocation = nil
+                location = nil
+            }
     }
 }
 
