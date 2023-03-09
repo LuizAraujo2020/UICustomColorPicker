@@ -10,8 +10,9 @@ import SwiftUI
 struct ContentView: View {
     @State private var startLocation: CGPoint?
     @State private var location: CGPoint?
+    @State private var bgColor: Color = .green
 
-    let radius: CGFloat = 100
+    let radius: CGFloat = 150
     var diameter: CGFloat {
         radius * 2
     }
@@ -31,7 +32,7 @@ struct ContentView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.blue)
+        .background(bgColor)
         .gesture(dragGesture)
         .ignoresSafeArea()
     }
@@ -63,6 +64,22 @@ struct ContentView: View {
 
                         distance = radius
                     }
+
+                    // Calculate the current color value
+                    guard distance != 0 else { return }
+
+                    var angle = Angle(radians: -Double(atan(dir.y / dir.x)))
+                    if dir.x < 0 {
+                        angle.degrees += 180
+
+                    } else if dir.x > 0 && dir.y > 0 {
+                        angle.degrees += 360
+                    }
+//                    print("Degrees: ", angle.degrees)
+
+                    let hue = angle.degrees / 360
+                    let saturation = Double(distance / radius)
+                    bgColor = Color(hue: hue, saturation: saturation, brightness: 0.7)
                 }
             }
             .onEnded { value in
