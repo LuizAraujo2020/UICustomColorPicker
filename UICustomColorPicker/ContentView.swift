@@ -18,15 +18,15 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            if let startLocation {
+            if startLocation != nil && location != nil {
                 Circle()
                     .frame(width: diameter)
-                    .position(startLocation)
+                    .position(startLocation!)
 
                 /// Handle
                 Circle()
                     .frame(width: 50)
-                    .position(startLocation)
+                    .position(location!)
                     .foregroundColor(.white)
             }
         }
@@ -41,13 +41,33 @@ struct ContentView: View {
             .onChanged { value in
                 if startLocation == nil {
                     startLocation = value.location
-                }
 
-                location = value.location
+                } else {
+
+                    // Clamp the location from handle so that it cannot move outside the color picker.
+                    let distanceX = value.location.x - startLocation!.x
+                    let distanceY = value.location.y - startLocation!.y
+
+                    let dir = CGPoint(x: distanceX, y: distanceY)
+                    var distance = sqrt(distanceX * distanceX + distanceY * distanceY)
+
+                    if distance < radius {
+                        location = value.location
+
+                    } else {
+                        let clampedX = dir.x / distance * radius
+                        let clampedY = dir.y / distance * radius
+
+                        location = CGPoint(x: startLocation!.x + clampedX,
+                                           y: startLocation!.y + clampedY)
+
+                        distance = radius
+                    }
+                }
             }
             .onEnded { value in
                 startLocation = nil
-                location = nil
+                location      = nil
             }
     }
 }
